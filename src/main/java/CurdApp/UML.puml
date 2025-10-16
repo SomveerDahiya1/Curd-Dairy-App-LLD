@@ -1,0 +1,137 @@
+@startuml
+package CurdApp {
+
+class User {
+    - String name
+    - String address
+    - Cart cart
+    - static int userId
+    + User(String, String)
+    + getName(): String
+    + getAddress(): String
+    + getCart(): Cart
+}
+
+class Cart {
+    - Dairy dairy
+    - List<MenuList> menu
+    + addItem(MenuList)
+    + getTotalPrice(): double
+    + setDairy(Dairy)
+    + printCart()
+}
+
+class MenuList {
+    - String name
+    - double price
+    + getName(): String
+    + getPrice(): double
+}
+
+class Dairy {
+    - String name
+    - String address
+    - static int dairyId
+    - List<MenuList> menuList
+    + addMenu(MenuList)
+    + showMenu()
+    + getName(): String
+    + getAddress(): String
+    + getId(): int
+}
+
+class DairyManager {
+    - List<Dairy> dairyList
+    - static DairyManager instance
+    + getInstance(): DairyManager
+    + addDairy(Dairy)
+    + removeDairy(Dairy)
+    + searchByLocation(String): ArrayList<Dairy>
+}
+
+class PaymentStrategy {
+    - String input
+    + pay(double): boolean
+}
+
+class DebitCard extends PaymentStrategy
+class UPI extends PaymentStrategy
+
+class OrderType {
+    + doCheckout(String)
+    + getTypeName(): String
+}
+
+class DeliveryOrder extends OrderType
+class PickupOrder extends OrderType
+
+class OrderFactory {
+    - String type
+    + getType(): OrderType
+}
+
+class Order {
+    # PaymentStrategy paymentStrategy
+    # OrderFactory factory
+    # User user
+    # static int orderId
+    # String type
+    # NotificationService notificationService
+    + checkout(User, String, PaymentStrategy)
+    + getOrderId(): int
+    + getType(): String
+}
+
+class CheckoutOrder extends Order
+class NotificationService {
+    + notify(Order)
+}
+
+class OrderManager {
+    - static OrderManager instance
+    - List<Order> orderList
+    + getInstance(): OrderManager
+    + addOrder(Order)
+    + listOrders()
+}
+
+class CurdApp {
+    - DairyManager DM
+    - Order order
+    - Cart cart
+    - PaymentStrategy paymentStrategy
+    + initializingDairy()
+    + searchDairy(String): ArrayList<Dairy>
+    + selectDairy(User, Dairy)
+    + addToCart(User, String)
+    + checkout(User, String, PaymentStrategy): Order
+    + pay(User, Order)
+}
+
+class Client {
+    + main(String[]): void
+}
+
+User "1" --> "1" Cart
+Cart "1" --> "1" Dairy
+Dairy "1" --> "*" MenuList
+DairyManager "1" --> "*" Dairy
+OrderFactory "1" --> "1" OrderType
+OrderManager "1" --> "*" Order
+Order "1" --> "1" NotificationService
+Order --> User
+Order --> PaymentStrategy
+CurdApp --> DairyManager
+CurdApp --> Order
+CurdApp --> Cart
+CurdApp --> PaymentStrategy
+Client --> CurdApp
+
+PaymentStrategy <|-- DebitCard
+PaymentStrategy <|-- UPI
+OrderType <|-- DeliveryOrder
+OrderType <|-- PickupOrder
+Order <|-- CheckoutOrder
+}
+
+@enduml
